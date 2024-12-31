@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main() {
+    int startPort = 0;
+    int endPort = 3000;
+    int sock;
+    struct sockaddr_in server;
+
+    printf("Scanning ports from %d to %d...\n", startPort, endPort);
+
+    for (int port = startPort; port <= endPort; port++) {
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock == -1) {
+            perror("Socket creation failed");
+            continue;
+        }
+
+        server.sin_family = AF_INET;
+        server.sin_addr.s_addr = inet_addr("127.0.0.1");
+        server.sin_port = htons(port);
+
+        // Try to connect to the port
+        if (connect(sock, (struct sockaddr *)&server, sizeof(server)) == 0) {
+            printf("Port ouvert : %d\n", port);
+        }
+
+        close(sock);
+    }
+
+    printf("Scan terminé.\n");
+    return 0;
+}
